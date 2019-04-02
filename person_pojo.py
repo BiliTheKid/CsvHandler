@@ -8,7 +8,7 @@ class Person:
 
     def add_to_dns(self,dns):
         self.arr_dns.append(dns)
-        self.dns=self.arr_dns
+        #self.dns=self.arr_dns
 
     def get_id(self):
         return self.id
@@ -27,3 +27,6 @@ class Person:
 
     def set_dns(self, dns):
         self.dns= dns
+
+    def get_arr_dns(self):
+        return self.arr_dns

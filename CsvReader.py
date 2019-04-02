@@ -7,6 +7,7 @@ import  urllib
 import csv
 from person_pojo import Person
 
+
 Wire_shark_info = pd.read_csv("dns_check.csv") #csv read
 select_relevnt_col = Wire_shark_info[["Source","Info"]] # choose relevent colmn
 #print(select_relevnt_col)
@@ -29,6 +30,7 @@ for index, row in df.iterrows():  #iter for csv
      match = re.findall(r"'(.*)'",str_result) #find match
      #print(match) #print match
     #print(All_Result[i])
+    match=str(match)
     Match_array_for_dns[k] = match
     match_arr.append(match)
     i=i+1
@@ -36,50 +38,58 @@ for index, row in df.iterrows():  #iter for csv
 
 #print(match_arr)
 
+#handler data from cloud shark and csv to local data structure and make manuplation
+Index_Var_array = 0  #general index
+list_of_person = [] # list for data of person
 
-Index_Var_array = 0
-list_of_person = []
-
-csvData =  [['Source', 'Dns_query']]
-
+csvData =  [['Source', 'Dns_query']]  #csv colomn
+#open csv person and write
 with open('person.csv', 'w') as csvFile:
-    writer = csv.writer(csvFile)
-    writer.writerows(csvData)
-    list_of_string_for_source = []
-
-    for index, row in df_source.iterrows():
+      writer = csv.writer(csvFile)
+      writer.writerows(csvData)
+      list_of_string_for_source = [] #mac adress list
+      #take the mac list and dns and put is in person
+      for index, row in df_source.iterrows():
         Source_data = row['Source']
         list_of_string_for_source.append(Source_data)
+      #
+      rows = zip(list_of_string_for_source , match_arr)
+      #  -------------- adi edit here --------------
+      id =0
 
-    rows = zip(list_of_string_for_source , match_arr)
-    # -------------- adi edit here --------------
-    id =0
+      #make local data strucute for list of mac and list of dns to any mac
+      for row in rows:
 
-    for row in rows:
-        
-        find=0
-        # print(row)
-        writer.writerow(row)
-        tmp= Person(id,row[0],row[1])
-        # print(row)
+         find=0
+         # print(row)
+         writer.writerow(row)
+         tmp= Person(id,row[0],row[1])
+         # print(row)
 
-        for l in list_of_person:
-            if l.get_mac() == tmp.get_mac():
-                l.add_to_dns(row[1] )
-                find=1
+         for l in list_of_person:
+             if l.get_mac() == tmp.get_mac():
+                 l.add_to_dns(row[1] )
+                 find=1
 
-        if find == 0:
+         if find == 0:
             list_of_person.append(tmp)
             id=id+1
 
-        #if not found any - create person
+         #if not found any - create person
 
 
         #--------------done edit here--------------
-
-    for l in list_of_person:
-        print(l.id,l.mac , l.dns)
+    #remove duplicate dns
+      for l in list_of_person:
+          set1 = set(l.arr_dns)
+          result = list(set1)
+          result.remove("[]")
+          try:
+              l.arr_dns=result
+          except:
+              print("Error array")
+          print(l.id,l.mac ,l.arr_dns )
 
     # print(list_of_string_for_source)
-    csvFile.close()
+      csvFile.close()
 
